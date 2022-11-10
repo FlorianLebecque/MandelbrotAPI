@@ -8,16 +8,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-
-
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options => {
     options.AddPolicy(name: MyAllowSpecificOrigins,
-                    policy => {
-                        policy.WithOrigins("http://example.com",
-                                             "*"
-                                            );
-                    });
+        policy => {
+            policy.WithOrigins("*");
+        });
 });
 
 var app = builder.Build();
