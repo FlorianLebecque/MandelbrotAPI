@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Server.IIS.Core;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
@@ -14,9 +15,23 @@ namespace MandelbrotAPI {
 
         private double ratio { get; set; }
 
-        public List<List<int>> points { get; set; }
-            
+        public List<List<int>> points { get {
 
+                var finalPoints = new List<List<int>>();
+
+                for (int i = 0; i < pts.GetLength(0); i++) {
+                    var temp = new List<int>();
+                    for(int j = 0; j < pts.GetLength(1); j++) {
+                        temp.Add(pts[i, j]);
+                    }
+                    finalPoints.Add(temp);
+                }
+
+                return finalPoints;
+            } 
+        }
+
+        private int[,] pts;
 
         public MandelbrotSet(Complex from, Complex to, double step,int iter) {
 
@@ -27,76 +42,78 @@ namespace MandelbrotAPI {
 
             this.ratio = (this.to.Imaginary - this.from.Imaginary) / (this.to.Real - this.from.Real);
 
-            points = this.compute();
+            pts = this.compute();
         }
 
-        private List<List<int>> compute() {
+        private int[,] compute() {
 
-            Complex a;
             Complex c;
 
-            List<List<int>> points_ = new List<List<int>>();
+            int[,] points_ = new int[(int)this.step,(int)(this.step*this.ratio)];
 
-            double r_inc = (to.Real - from.Real) / this.step;
-            double i_inc = (to.Imaginary - from.Imaginary) / this.step;
+            double r = 0;
+            double i = 0;
 
+            for (int x = 0; x < (int)this.step; x++) {
+                for(int y = 0; y < (int)(this.step * this.ratio); y++) {
 
-            for (double r = from.Real; r < to.Real; r+= r_inc) {
-                List<int> temp = new List<int>();
-                for(double i = from.Imaginary; i < to.Imaginary; i += i_inc) {
+                    r = this.from.Real + (((x) / (this.step)) * (this.to.Real - this.from.Real));
+                    i = this.from.Imaginary + (((y) / (this.step*this.ratio)) * (this.to.Imaginary - this.from.Imaginary));
 
-                    c = new Complex(r,i);
+                    c = new Complex(r, i);
 
-                    a = this.IsInMandel(c, this.max_iter);
-
-                    temp.Add((a.Magnitude < 2) ? 1: 0);
-
+                    points_[x, y] = this.IsInMandel(c, this.max_iter);
                 }
-                points_.Add(temp);
             }
 
             return points_;
         }
 
-        private Complex IsInMandel(Complex z,int n) {
+        private int IsInMandel(Complex z,int max_iter) {
 
-            if(n == 1) {
-                return 0;
-            } else {
-                return  Complex.Pow(IsInMandel(z, n - 1),2) + z;
+            Complex a = new Complex(z.Real,z.Imaginary);
+            int n = 0;
+            while(n < max_iter) {
+
+                a = Complex.Pow(a, 2) + z;
+
+                if(a.Magnitude > 2) {
+                    return n;
+                }
+
+                n++;
             }
 
+            return n;
         }
 
         public byte[]? SaveImg() {
 
-            //create image from list of points
-
             // Create 2D array of integers
-            int width = points.Count();
-            int height = points[0].Count();
+            int width = (int)this.step;
+            int height = (int)(this.step*this.ratio);
+
             int stride = width * 4;
             int[,] integers = new int[width, height];
 
            
-            for (int x = 0; x < points.Count(); x++) {
-                for (int y = 0; y < points[x].Count(); y++) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
 
-                    byte colors = (byte)(255 * points[x][y]);
+                    byte colors = (byte)(16 * pts[x,y]);
 
                     byte[] bgra = new byte[] { colors, colors, colors, 255 };
                     
                     integers[x, y] = BitConverter.ToInt32(bgra, 0);
                 }
             }
-
             
 
             // Copy into bitmap
             Bitmap bitmap;
             unsafe {
                 fixed (int* intPtr = &integers[0, 0]) {
-                    bitmap = new Bitmap(width, (int)(width * this.ratio), stride, PixelFormat.Format32bppRgb, new IntPtr(intPtr));
+                    bitmap = new Bitmap(width, height, stride, PixelFormat.Format32bppRgb, new IntPtr(intPtr));
                 }
             }
 
