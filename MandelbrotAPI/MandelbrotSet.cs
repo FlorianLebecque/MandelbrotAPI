@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Server.IIS.Core;
+using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -6,8 +7,8 @@ using System.Numerics;
 
 namespace MandelbrotAPI {
     public class MandelbrotSet {
-        private Complex from { get; set; }
-        private Complex to { get; set; }
+        public Complex from { get; set; }
+        public Complex to { get; set; }
 
         private double step { get; set; }
 
@@ -28,10 +29,10 @@ namespace MandelbrotAPI {
                 }
 
                 return finalPoints;
-            } 
+            }
         }
 
-        private int[,] pts;
+        public int[,] pts;
 
         public MandelbrotSet(Complex from, Complex to, double step,int iter) {
 
@@ -43,6 +44,10 @@ namespace MandelbrotAPI {
             this.ratio = (this.to.Imaginary - this.from.Imaginary) / (this.to.Real - this.from.Real);
 
             pts = this.compute();
+        }
+
+        public MandelbrotSet(int[,] pts) {
+            this.pts = pts;
         }
 
         private int[,] compute() {
@@ -121,6 +126,55 @@ namespace MandelbrotAPI {
             ImageConverter converter = new ImageConverter();
             return converter.ConvertTo(bitmap, typeof(byte[])) as byte[];
 
+        }
+
+
+        public static int[,] Merge(List<MandelbrotSet> list, int width,int height,int split) {
+
+            if (split == 1) {
+                return list[0].pts;
+            }
+
+            int[,] results = new int[width,height];
+            int[] arr = new int[0];
+
+            list.OrderBy(x => x.from.Real).ThenBy(x => x.from.Imaginary);
+
+
+            int h_span = width / split;
+            int v_span = height / split;
+
+            for(int r = 0; r < list.Count; r++) {
+                MandelbrotSet mbs = list[r];
+
+                int[] baData = new int[mbs.pts.Length];
+                Buffer.BlockCopy(mbs.pts, 0, baData, 0, mbs.pts.Length*sizeof(int));
+                arr = arr.Concat(baData).ToArray();
+            }
+
+            return MandelbrotSet.Make2DArray(arr,width,height,split);
+        }
+
+        private static T[,] Make2DArray<T>(T[] input, int width, int height, int split) {
+            T[,] output = new T[width, height];
+
+            int h_span = width / split;
+            int v_span = height / split;
+
+            int region_size = h_span * v_span;
+            int row_size = h_span;
+
+            for (int i = 0; i < input.Length; i++) {
+
+                int region = i / (region_size);
+                int row = ((i - (region*region_size)) / h_span);
+
+                int index = (i - (row*h_span) - (region * region_size));
+
+                output[index,row] = input[i];
+            }
+
+            return output;
         }
     }
 }
