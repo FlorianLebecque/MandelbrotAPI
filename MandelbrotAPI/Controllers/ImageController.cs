@@ -19,7 +19,7 @@ namespace MandelbrotAPI.Controllers {
 
             MandelbrotSet mbs = new MandelbrotSet(v2_from, v2_to, step, iter);
 
-            var img = mbs.SaveImg();
+            var img = mbs.GetImg();
 
             return File(img, "image/jpeg");
         }
