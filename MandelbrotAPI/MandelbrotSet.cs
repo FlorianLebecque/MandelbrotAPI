@@ -41,7 +41,7 @@ namespace MandelbrotAPI {
             this.step = step;
             this.max_iter   = iter;
 
-            this.ratio = (this.to.Imaginary - this.from.Imaginary) / (this.to.Real - this.from.Real);
+            this.ratio = Math.Abs((this.to.Imaginary - this.from.Imaginary) / (this.to.Real - this.from.Real));
 
             pts = this.compute();
         }
@@ -92,7 +92,7 @@ namespace MandelbrotAPI {
             return n;
         }
 
-        public byte[]? SaveImg() {
+        public byte[]? GetImg() {
 
             // Create 2D array of integers
             int width = (int)this.step;
@@ -128,53 +128,5 @@ namespace MandelbrotAPI {
 
         }
 
-
-        public static int[,] Merge(List<MandelbrotSet> list, int width,int height,int split) {
-
-            if (split == 1) {
-                return list[0].pts;
-            }
-
-            int[,] results = new int[width,height];
-            int[] arr = new int[0];
-
-            list.OrderBy(x => x.from.Real).ThenBy(x => x.from.Imaginary);
-
-
-            int h_span = width / split;
-            int v_span = height / split;
-
-            for(int r = 0; r < list.Count; r++) {
-                MandelbrotSet mbs = list[r];
-
-                int[] baData = new int[mbs.pts.Length];
-                Buffer.BlockCopy(mbs.pts, 0, baData, 0, mbs.pts.Length*sizeof(int));
-                arr = arr.Concat(baData).ToArray();
-            }
-
-            return MandelbrotSet.Make2DArray(arr,width,height,split);
-        }
-
-        private static T[,] Make2DArray<T>(T[] input, int width, int height, int split) {
-            T[,] output = new T[width, height];
-
-            int h_span = width / split;
-            int v_span = height / split;
-
-            int region_size = h_span * v_span;
-            int row_size = h_span;
-
-            for (int i = 0; i < input.Length; i++) {
-
-                int region = i / (region_size);
-                int row = ((i - (region*region_size)) / h_span);
-
-                int index = (i - (row*h_span) - (region * region_size));
-
-                output[index,row] = input[i];
-            }
-
-            return output;
-        }
     }
 }
