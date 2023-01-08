@@ -7,17 +7,17 @@ namespace MandelbrotAPI.Controllers {
     [ApiController]
     public class DiagnosticController : ControllerBase {
 
+        private static PerformanceThread perfThread;
 
+        public DiagnosticController() {
+            if(perfThread == null) {
+                perfThread = new PerformanceThread();
+            }
+        }
 
         [HttpGet(Name = "Diagnosis")]
         public float Get() {
-
-            PerformanceCounter a = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            a.NextValue();
-
-            Thread.Sleep(1000);
-
-            return a.NextValue();
+            return perfThread.GetPerformance();
         }
     }
 }
