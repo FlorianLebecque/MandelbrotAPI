@@ -6,35 +6,40 @@ namespace MandelbrotAPI {
 
         public bool jobs_done;
         private List<Task<MandelBrotPart>> jobs;
-        private int split;
-        public LoadManager(int split) {
-        
-            jobs = new List<Task<MandelBrotPart>>();
-            jobs_done = false;
-            this.split = split;
+        private List<QueueCall> queues;
+        private RemoteAnalyzer ra;
+        public LoadManager() {
 
+            ra = new RemoteAnalyzer(new());
+
+            queues = new();
+            jobs = new();
+            jobs_done = false;
         }
 
-        public void CreateJobs(Complex from,Complex to,double step, int iter) {
-
+        public void CreateJobs(int split,Complex from,Complex to,double step, int iter) {
             double real_spacing = (to.Real - from.Real) / split;
             double imag_spacing = (to.Imaginary - from.Imaginary) / split;
 
             List<Task<MandelBrotPart>> taskList = new List<Task<MandelBrotPart>>();
             for (int i = 0; i < split; i++) {
                 for (int j = 0; j < split; j++) {
-
                     Complex new_from = new Complex(from.Real + (i * real_spacing), from.Imaginary + (j * imag_spacing));
                     Complex new_to = new Complex(new_from.Real + real_spacing, new_from.Imaginary + imag_spacing);
 
                     int off_i = i;
                     int off_j = j;
 
-                    QueueCall qc = new QueueCall(off_i, off_j, new_from, new_to, step / split, iter);
-
-                    jobs.Add(qc.Request("http://localhost:5275"));
+                    queues.Add(new QueueCall(off_i, off_j, new_from, new_to, step / split, iter));
                 }
             }
+        }
+
+        public void ManageLoad() {
+
+
+
+
         }
 
         public void Start() {
@@ -56,7 +61,7 @@ namespace MandelbrotAPI {
             }
         }
         
-        public MandelbrotSet GetResult(Complex from, Complex to, double step) {
+        public MandelbrotSet GetResult(int split,Complex from, Complex to, double step) {
 
             List<MandelBrotPart> results = new List<MandelBrotPart>();
 
