@@ -48,12 +48,13 @@ namespace MandelbrotAPI {
                 string key = remotes.Keys.ToArray()[host % remotes.Count];
 
                 while ((remotes[key].cpu > 70)&&(tries < remotes.Count)){
-                    tries++;
                     key = remotes.Keys.ToArray()[host % remotes.Count];
+                    
+                    tries++;
                     host++;
                 }
 
-                jobs.Add(qc.Request(remotes.Keys.ToArray()[host % remotes.Count]));
+                jobs.Add(qc.Request(key));
 
                 host++;
             }
