@@ -12,10 +12,17 @@ namespace MandelbrotAPI.Controllers {
     [Route("[controller]")]
     public class MandelbrotController : ControllerBase {
 
-        LoadManager lm;
+        private LoadManager lm;
+        private IConfiguration configuration;
 
-        public MandelbrotController() {
-            lm = new();
+        public MandelbrotController(IConfiguration configuration) {
+
+            
+            this.configuration = configuration;
+
+            List<string> remotes = configuration["remotes"].Split(";").ToList();
+
+            lm = new(remotes);
         }
 
         
@@ -29,6 +36,7 @@ namespace MandelbrotAPI.Controllers {
             Complex v2_to   = new Complex(Convert.ToDouble(  to_arg[0]), Convert.ToDouble(  to_arg[1]));
 
             lm.CreateJobs(split,v2_from, v2_to, step, iter);
+            lm.ManageLoad();
             lm.Start();
             lm.Wait();
 
