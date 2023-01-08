@@ -21,6 +21,7 @@ namespace MandelbrotAPI {
 
 
             trd = new(ThreadFunction);
+            trd.Start();
         }
 
         private void ThreadFunction() {
@@ -41,14 +42,17 @@ namespace MandelbrotAPI {
                     timer.Stop();
 
 
-                    var cpu = resp.Result.Content;
+                    var cpu = resp.Result.Content.ReadAsStringAsync();
+                    cpu.Wait();
                     var ping = timer.ElapsedMilliseconds;
 
                     lock (remoteResult[s]) {
-                        remoteResult[s].cpu = (float)Convert.ToDouble(cpu);
+                        remoteResult[s].cpu = (float)Convert.ToDouble(cpu.Result);
                         remoteResult[s].ping = ping;
                     }
                 }
+
+                Thread.Sleep(5000); //actualize result every five seconds
             }
         }
     
@@ -59,6 +63,14 @@ namespace MandelbrotAPI {
             }
 
             return res;
+        }
+
+        public Dictionary<string, RemoteResult> GetRemoteResult() {
+            Dictionary<string, RemoteResult> a;
+            lock (remoteResult) {
+                a = remoteResult;
+            }
+            return a;
         }
     
     }
