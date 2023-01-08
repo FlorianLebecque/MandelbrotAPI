@@ -40,8 +40,23 @@ namespace MandelbrotAPI {
             Dictionary<string,RemoteResult> remotes = ra.GetRemoteResult();
             var sortedDict = from result in remotes orderby result.Value.ping ascending select result;
 
+            int host = 0;
+            int tries = 0;
+            foreach(QueueCall qc in queues) {
 
+                tries = 0;
+                string key = remotes.Keys.ToArray()[host % remotes.Count];
 
+                while ((remotes[key].cpu > 70)&&(tries < remotes.Count)){
+                    tries++;
+                    key = remotes.Keys.ToArray()[host % remotes.Count];
+                    host++;
+                }
+
+                jobs.Add(qc.Request(remotes.Keys.ToArray()[host % remotes.Count]));
+
+                host++;
+            }
 
         }
 
