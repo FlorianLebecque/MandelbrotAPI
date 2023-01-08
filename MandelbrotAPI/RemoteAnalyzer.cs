@@ -3,20 +3,18 @@
 namespace MandelbrotAPI {
     public class RemoteAnalyzer {
 
-        private List<string> remotes;
+        private List<RemoteResult> remotes;
         private Thread trd;
-        private Dictionary<string, RemoteResult> remoteResult;
         private static HttpClient client;
         public RemoteAnalyzer(List<string> remotes){
             if(client== null) {
                 client = new HttpClient();
             }
 
-            this.remotes = remotes;
-            this.remoteResult = new();
+            this.remotes = new();
 
             foreach(string s in remotes) {
-                remoteResult.Add(s, new());
+                this.remotes.Add(new(s));
             }
 
 
@@ -29,9 +27,9 @@ namespace MandelbrotAPI {
             Stopwatch timer = new Stopwatch();
 
             while (true) {
-                foreach(string s in remotes) {
+                foreach(RemoteResult r in remotes) {
 
-                    string path = string.Format("{0}/api/Diagnostic",s);
+                    string path = string.Format("{0}/api/Diagnostic",r.host);
 
                     timer.Start();
 
@@ -46,29 +44,21 @@ namespace MandelbrotAPI {
                     cpu.Wait();
                     var ping = timer.ElapsedMilliseconds;
 
-                    lock (remoteResult[s]) {
-                        remoteResult[s].cpu = (float)Convert.ToDouble(cpu.Result);
-                        remoteResult[s].ping = ping;
+                    lock (r) {
+                        r.cpu = (float)Convert.ToDouble(cpu.Result);
+                        r.ping = ping;
                     }
                 }
 
                 Thread.Sleep(5000); //actualize result every five seconds
             }
         }
-    
-        public RemoteResult GetResult(string remote) {
-            RemoteResult res;
-            lock (remoteResult[remote]) { 
-                res = remoteResult[remote];
-            }
-
-            return res;
-        }
-
         public Dictionary<string, RemoteResult> GetRemoteResult() {
-            Dictionary<string, RemoteResult> a;
-            lock (remoteResult) {
-                a = remoteResult;
+            Dictionary<string, RemoteResult> a = new();
+            foreach(RemoteResult r in remotes) {
+                lock (r) {
+                    a.Add(r.host, r);
+                }
             }
             return a;
         }
@@ -78,5 +68,9 @@ namespace MandelbrotAPI {
     public class RemoteResult {
         public float ping;
         public float cpu;
+        public readonly string host;
+        public RemoteResult(string host) {
+            this.host = host;
+        }
     }
 }
