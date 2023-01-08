@@ -1,0 +1,17 @@
+﻿{
+  "mode": {
+    "type": "select",
+    "options": [
+      [ "LOCAL", "Local" ],
+      [ "BALENCER", "Balencer" ],
+      [ "BOTH", "Both" ]
+    ],
+    "value": "LOCAL"
+  },
+  "remotes": {
+    "type": "list",
+    "values": [
+      "127.0.0.1"
+    ]
+  }
+}
