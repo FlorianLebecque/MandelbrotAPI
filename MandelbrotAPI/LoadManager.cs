@@ -8,9 +8,9 @@ namespace MandelbrotAPI {
         private List<Task<MandelBrotPart>> jobs;
         private List<QueueCall> queues;
         private RemoteAnalyzer ra;
-        public LoadManager() {
+        public LoadManager(List<string> remotes) {
 
-            ra = new RemoteAnalyzer(new());
+            ra = new RemoteAnalyzer(remotes);
 
             queues = new();
             jobs = new();
@@ -36,6 +36,9 @@ namespace MandelbrotAPI {
         }
 
         public void ManageLoad() {
+
+            Dictionary<string,RemoteResult> remotes = ra.GetRemoteResult();
+            var sortedDict = from result in remotes orderby result.Value.ping ascending select result;
 
 
 
