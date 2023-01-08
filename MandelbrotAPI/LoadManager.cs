@@ -32,14 +32,16 @@ namespace MandelbrotAPI {
 
                     QueueCall qc = new QueueCall(off_i, off_j, new_from, new_to, step / split, iter);
 
-                    jobs.Add(new Task<MandelBrotPart>(qc.Compute));
+                    jobs.Add(qc.Request("http://localhost:5275"));
                 }
             }
         }
 
         public void Start() {
             foreach (Task<MandelBrotPart> task in jobs) {
-                task.Start();
+                if(task.Status == TaskStatus.Created) {
+                    task.Start();
+                }
             }
         }
 

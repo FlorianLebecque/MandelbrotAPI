@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace MandelbrotAPI {
     public class MandelbrotSet {
@@ -48,6 +49,20 @@ namespace MandelbrotAPI {
 
         public MandelbrotSet(int[,] pts) {
             this.pts = pts;
+        }
+
+        [JsonConstructor]
+        public MandelbrotSet(Complex from,Complex to, List<List<int>> points) {
+            this.from = from;
+            this.to   = to;
+
+            this.pts = new int[points.Count,points[0].Count];
+            for(int i = 0; i < points.Count; i++) {
+                for (int j = 0; j < points[i].Count; j++) {
+                    pts[i,j] = points[i][j];
+                }
+            }
+
         }
 
         private int[,] compute() {

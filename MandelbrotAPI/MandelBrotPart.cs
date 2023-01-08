@@ -1,11 +1,12 @@
 ﻿using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace MandelbrotAPI {
     public class MandelBrotPart {
 
-        public int off_i, off_j;
-
-        public MandelbrotSet mbs;
+        public int off_i { get; set; } 
+        public int off_j { get;set; }
+        public MandelbrotSet mbs { get; set; }
 
         public MandelBrotPart(int off_i,int off_j,Complex from, Complex to, double step, int iter) {
 
@@ -13,6 +14,14 @@ namespace MandelbrotAPI {
             this.off_j = off_j;
 
             mbs = new MandelbrotSet(from, to, step, iter);
+        }
+
+
+        [JsonConstructor]
+        public MandelBrotPart(int off_i,int off_j,MandelbrotSet mbs) {
+            this.off_i = off_i;
+            this.off_j = off_j;
+            this.mbs   = mbs;
         }
 
         public static int[,] Merge(List<MandelBrotPart> list, int width, int height, int split) {
