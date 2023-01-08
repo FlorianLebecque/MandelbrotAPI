@@ -1,0 +1,267 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "MandelbrotAPI",
+      "version": "1.0"
+    },
+    "paths": {
+      "/api/Diagnostic": {
+        "get": {
+          "tags": [
+            "Diagnostic"
+          ],
+          "operationId": "Diagnosis",
+          "responses": {
+            "200": {
+              "description": "Success",
+              "content": {
+                "text/plain": {
+                  "schema": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                },
+                "text/json": {
+                  "schema": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/Mandelbrot": {
+        "get": {
+          "tags": [
+            "Mandelbrot"
+          ],
+          "operationId": "MandelBrot?from={param1}&to={param2}&step={param3}&iter={param4}&split={param5}",
+          "parameters": [
+            {
+              "name": "from",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "default": "-3:-2"
+              }
+            },
+            {
+              "name": "to",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "default": "2:2"
+              }
+            },
+            {
+              "name": "step",
+              "in": "query",
+              "schema": {
+                "type": "number",
+                "format": "double",
+                "default": 500
+              }
+            },
+            {
+              "name": "iter",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 30
+              }
+            },
+            {
+              "name": "split",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 16
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success",
+              "content": {
+                "text/plain": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MandelbrotSet"
+                  }
+                },
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MandelbrotSet"
+                  }
+                },
+                "text/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MandelbrotSet"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/MandelbrotComput": {
+        "get": {
+          "tags": [
+            "MandelbrotComput"
+          ],
+          "operationId": "MandelBrot?off_i={param1}&off_j={param2}&from={param3}&to={param4}&step={param5}&iter={param6}",
+          "parameters": [
+            {
+              "name": "off_i",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "off_j",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "from",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "default": "-3:-2"
+              }
+            },
+            {
+              "name": "to",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "default": "2:2"
+              }
+            },
+            {
+              "name": "step",
+              "in": "query",
+              "schema": {
+                "type": "number",
+                "format": "double",
+                "default": 500
+              }
+            },
+            {
+              "name": "iter",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 30
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success",
+              "content": {
+                "text/plain": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MandelBrotPart"
+                  }
+                },
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MandelBrotPart"
+                  }
+                },
+                "text/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MandelBrotPart"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Complex": {
+          "type": "object",
+          "properties": {
+            "real": {
+              "type": "number",
+              "format": "double"
+            },
+            "imaginary": {
+              "type": "number",
+              "format": "double"
+            },
+            "magnitude": {
+              "type": "number",
+              "format": "double",
+              "readOnly": true
+            },
+            "phase": {
+              "type": "number",
+              "format": "double",
+              "readOnly": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "MandelBrotPart": {
+          "type": "object",
+          "properties": {
+            "off_i": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "off_j": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "mbs": {
+              "$ref": "#/components/schemas/MandelbrotSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "MandelbrotSet": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "$ref": "#/components/schemas/Complex"
+            },
+            "to": {
+              "$ref": "#/components/schemas/Complex"
+            },
+            "points": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
