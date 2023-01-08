@@ -33,7 +33,6 @@ namespace MandelbrotAPI {
 
         public Task<MandelBrotPart> Request(string ip) {
 
-            //new MandelBrotPart(off_i, off_j, from, to, step, iter);
             string from_str = string.Format("{0}:{1}",from.Real,from.Imaginary);
             string to_str   = string.Format("{0}:{1}",to.Real, to.Imaginary);
 
