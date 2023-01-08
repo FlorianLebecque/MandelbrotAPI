@@ -7,11 +7,11 @@ namespace MandelbrotAPI {
 
         private ThreadResult perf;
 
-        private PerformanceCounter a;
+        private PerformanceCounter perf_counter;
 
         public PerformanceThread() {
             perf = new ThreadResult();
-            a = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            perf_counter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             trd  = new Thread(ComputePerformance);
             trd.Start();
         }
@@ -20,11 +20,11 @@ namespace MandelbrotAPI {
 
             while (true) {
                  
-                a.NextValue();
+                perf_counter.NextValue();
 
                 Thread.Sleep(1000);
                 lock (this.perf) {
-                    this.perf.value = a.NextValue();
+                    this.perf.value = perf_counter.NextValue();
                 }
             }
         }
