@@ -4,7 +4,7 @@ using System.Numerics;
 namespace MandelbrotAPI {
     public class LoadManager {
 
-        public bool jobs_done;
+        private bool jobs_done;
         private List<Task<MandelBrotPart>> jobs;
         private List<QueueCall> queues;
         private RemoteAnalyzer ra;
